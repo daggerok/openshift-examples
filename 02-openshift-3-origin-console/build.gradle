@@ -1,0 +1,28 @@
+buildscript {
+  ext {
+    springBootVersion = '1.5.7.RELEASE'
+  }
+}
+
+plugins {
+  id 'idea'
+  id 'java'
+  id 'org.springframework.boot' version '1.5.7.RELEASE'
+}
+
+version = '0.0.1'
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile('org.springframework.boot:spring-boot-starter-web')
+  compileOnly('org.projectlombok:lombok')
+  testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+springBoot {
+  executable = true
+}

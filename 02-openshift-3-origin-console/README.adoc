@@ -1,0 +1,102 @@
+= openshift 3 docker spring boot app
+
+== 1) build app, run locally
+
+.env variable
+[source,bash]
+----
+export SPRING_PROFILES_ACTIVE=ololo
+bash build/libs/app-0.0.1.jar
+----
+
+.run args
+[source,bash]
+----
+export RUN_ARGS="--spring.profiles.active=trololo"
+bash build/libs/app-0.0.1.jar
+----
+
+.script parameter
+[source,bash]
+----
+bash build/libs/app-0.0.1.jar --spring.profiles.active=trololo
+----
+
+== 2) build image and publish it to docker registry
+
+.push
+[source,bash]
+----
+bash gradlew clean build
+docker build --rm -t daggerok/openshift-spring-boot-app .
+docker tag daggerok/openshift-spring-boot-app daggerok/openshift-spring-boot-app:latest
+docker tag daggerok/openshift-spring-boot-app:latest daggerok/openshift-spring-boot-app:v1
+docker push daggerok/openshift-spring-boot-app:v1
+docker push daggerok/openshift-spring-boot-app:latest
+----
+
+.build and run
+[source,bash]
+----
+bash gradlew clean build
+
+docker build -t daggerok/openshift-spring-boot-app .
+
+docker run -p 8080:8080 daggerok/openshift-spring-boot-app
+
+docker rm -f -v $(docker ps -a|grep -v CONTAINER|awk '{print $1}')
+----
+
+== 3) deploy app on openshift 3
+
+.oc login
+[source,bash]
+----
+oc login https://api.starter-us-west-2.openshift.com
+# output:
+Authentication required for https://api.starter-us-west-2.openshift.com:443 (openshift)
+Username: daggerok@gmail.com
+Password:
+Login successful.
+
+You have one project on this server: "spring-docker"
+
+Using project "spring-docker". # oc project spring-docker
+----
+
+.status
+[source,bash]
+----
+oc status
+# output:
+In project spring-docker on server https://api.starter-us-west-2.openshift.com:443
+
+svc/openshift-spring-boot-ap - 172.30.47.48:8080
+  dc/openshift-spring-boot-ap deploys istag/openshift-spring-boot-ap:v1
+    deployment #1 deployed 2 minutes ago - 1 pod
+
+View details with 'oc describe <resource>/<name>' or list everything with 'oc get all'.
+----
+
+when pod will be ready create a route. for me it's:
+
+http://daggerok-daggerok.7e14.starter-us-west-2.openshiftapps.com
+
+== 4) verify
+
+[source,bash]
+----
+http http://daggerok-daggerok.7e14.starter-us-west-2.openshiftapps.com/message
+HTTP/1.1 200
+Cache-control: private
+Content-Type: application/json;charset=UTF-8
+Date: Fri, 15 Sep 2017 01:28:42 GMT
+Set-Cookie: a24c4650d0385710537546a6e4c39846=4e67cf5991f232f6962f93f136f02575; path=/; HttpOnly
+Transfer-Encoding: chunked
+
+{
+    "message": "ololo"
+}
+----
+
+== enjoy :)

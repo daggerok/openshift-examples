@@ -1,0 +1,8 @@
+= OpenShift examples
+
+. link:01-openshift-3-origin-console-local/[Openshift Origin 3 java API local (dev) deployment]
+. link:02-openshift-3-origin-console/[Openshift Origin 3 java API deployment]
+
+read / watch:
+
+. link:https://www.youtube.com/playlist?list=PLaR6Rq6Z4Iqficb-XqeydZD_ZTD3XEwBp[demos]
