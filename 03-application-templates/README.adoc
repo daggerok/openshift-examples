@@ -1,0 +1,42 @@
+= application templates
+
+.bootstrap
+[source,bash]
+----
+oc cluster up
+----
+
+.login as developer
+[source,bash]
+----
+oc login -u developer
+----
+
+.create new project
+[source,bash]
+----
+oc new-project test-java-project                                                                                06:23:27
+Now using project "test-java-project" on server "https://127.0.0.1:8443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
+
+to build a new example application in Ruby.
+----
+
+.create applications from teplates..
+[source,bash]
+----
+oc create -f https://raw.githubusercontent.com/gshipley/openshift3mlbparks/master/mlbparks-template-eap.json
+oc create -f https://raw.githubusercontent.com/gshipley/openshift3mlbparks/master/mlbparks-template-wildfly.json
+oc create -f https://raw.githubusercontent.com/gshipley/openshift3mlbparks/master/mlbparks.json
+----
+
+.guestbook
+[source,bash]
+----
+oc new-project guestbook
+oc new-app kubernetes/guestbook
+----
+
