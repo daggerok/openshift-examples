@@ -5,13 +5,7 @@
 .push
 [source,bash]
 ----
-bash gradlew clean build
-docker build --rm -t daggerok/openshift-spring-boot-mysql-app .
-docker tag daggerok/openshift-spring-boot-mysql-app daggerok/openshift-spring-boot-mysql-app:latest
-docker tag daggerok/openshift-spring-boot-mysql-app:latest daggerok/openshift-spring-boot-mysql-app:v1
-docker push daggerok/openshift-spring-boot-mysql-app:v1
-docker push daggerok/openshift-spring-boot-mysql-app:latest
-docker run -p 8080:8080 daggerok/openshift-spring-boot-mysql-app
+bash gradlew clean build docker
 docker rm -f -v $(docker ps -a|grep -v CONTAINER|awk '{print $1}')
 ----
 
