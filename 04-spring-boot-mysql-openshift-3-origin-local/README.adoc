@@ -7,6 +7,7 @@
 ----
 bash gradlew clean build docker
 docker rm -f -v $(docker ps -a|grep -v CONTAINER|awk '{print $1}')
+docker rmi -f $(docker images|grep -v healthcheck|grep -v TAG|awk '{print $3}')
 ----
 
 == 2) bootstrap cluster
