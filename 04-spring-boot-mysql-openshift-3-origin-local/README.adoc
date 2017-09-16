@@ -1,0 +1,150 @@
+= openshift 3 docker spring boot mysql app local (dev) deployment
+
+== 1) build and publish it to docker registry
+
+.push
+[source,bash]
+----
+bash gradlew clean build
+docker build --rm -t daggerok/openshift-spring-boot-mysql-app .
+docker tag daggerok/openshift-spring-boot-mysql-app daggerok/openshift-spring-boot-mysql-app:latest
+docker tag daggerok/openshift-spring-boot-mysql-app:latest daggerok/openshift-spring-boot-mysql-app:v1
+docker push daggerok/openshift-spring-boot-mysql-app:v1
+docker push daggerok/openshift-spring-boot-mysql-app:latest
+docker run -p 8080:8080 daggerok/openshift-spring-boot-mysql-app
+docker rm -f -v $(docker ps -a|grep -v CONTAINER|awk '{print $1}')
+----
+
+== 2) bootstrap cluster
+
+.bootstrap local development cluster
+[source,bash]
+----
+mkdir /tmp/oc
+oc cluster up --host-data-dir=/tmp/oc # --use-existing-config
+open https://127.0.0.1:8443
+# User:     developer
+# Password: <any value>
+----
+
+== 3) add to project MySQL (Persistent)
+
+----
+The following service(s) have been created in your project: mysql.
+
+       Username: app
+       Password: app
+  Database Name: app
+ Connection URL: mysql://mysql:3306/
+
+For more information about using this template, including OpenShift considerations, see https://github.com/sclorg/mysql-container/blob/master/5.7/README.md.
+----
+
+== 4) application image
+
+- create app from docker image
+- set naame app
+- add env variable
+
+----
+Environment Variables
+Name: MYSQL_SERVER_HOST
+Value: mysql
+----
+
+- when pod will be ready...
+- create route, for me it's: http://app-myproject.127.0.0.1.nip.io
+
+== 5) verify
+
+[source,bash]
+----
+http http://app-myproject.127.0.0.1.nip.io/api/messages/search/findAllByOrderByModifiedAtDesc
+HTTP/1.1 200
+Cache-control: private
+Content-Type: application/hal+json;charset=UTF-8
+Date: Sat, 16 Sep 2017 04:34:22 GMT
+Set-Cookie: 67c01ba2249840a0df5cc7a9f1ea73bf=aeadab82e35458c96bdf74ace0505c6c; path=/; HttpOnly
+Transfer-Encoding: chunked
+
+{
+    "_embedded": {
+        "messages": [
+            {
+                "_links": {
+                    "message": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/1"
+                    },
+                    "self": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/1"
+                    }
+                },
+                "body": "one",
+                "createdAt": "2017-09-16T04:30:42.000Z",
+                "createdDate": "2017-09-16",
+                "modifiedAt": "2017-09-16T04:30:42.000+0000",
+                "subject": "1"
+            },
+            {
+                "_links": {
+                    "message": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/2"
+                    },
+                    "self": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/2"
+                    }
+                },
+                "body": "1",
+                "createdAt": "2017-09-16T04:30:42.000Z",
+                "createdDate": "2017-09-16",
+                "modifiedAt": "2017-09-16T04:30:42.000+0000",
+                "subject": "2"
+            },
+            {
+                "_links": {
+                    "message": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/3"
+                    },
+                    "self": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/3"
+                    }
+                },
+                "body": "2",
+                "createdAt": "2017-09-16T04:30:42.000Z",
+                "createdDate": "2017-09-16",
+                "modifiedAt": "2017-09-16T04:30:42.000+0000",
+                "subject": "3"
+            },
+            {
+                "_links": {
+                    "message": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/4"
+                    },
+                    "self": {
+                        "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/4"
+                    }
+                },
+                "body": "two",
+                "createdAt": "2017-09-16T04:30:42.000Z",
+                "createdDate": "2017-09-16",
+                "modifiedAt": "2017-09-16T04:30:42.000+0000",
+                "subject": "4"
+            }
+        ]
+    },
+    "_links": {
+        "self": {
+            "href": "http://app-myproject.127.0.0.1.nip.io/api/messages/search/findAllByOrderByModifiedAtDesc"
+        }
+    }
+}
+----
+
+== 6) stop cluster
+
+[source,bash]
+----
+oc cluster down
+----
+
+== enjoy :)

@@ -1,0 +1,47 @@
+buildscript {
+  ext {
+    springBootVersion = "1.5.7.RELEASE"
+  }
+}
+
+plugins {
+  id "idea"
+  id "java"
+  id "cn.bestwu.propdeps" version "0.0.10"
+  id "cn.bestwu.propdeps-idea" version "0.0.10"
+  id "cn.bestwu.propdeps-maven" version "0.0.10"
+  id "cn.bestwu.propdeps-eclipse" version "0.0.10"
+  id "com.github.ben-manes.versions" version "0.15.0"
+  id "org.springframework.boot" version "1.5.7.RELEASE"
+}
+
+version = "0.0.1"
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile("io.vavr:vavr:0.9.0")
+  compileOnly("org.projectlombok:lombok")
+  compile("org.hibernate:hibernate-java8")
+  compile("com.fasterxml.jackson.core:jackson-databind:2.8.8.1")
+  compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+  compile("org.springframework.boot:spring-boot-starter-data-rest")
+  compile("org.springframework.boot:spring-boot-starter-data-jpa")
+  compile("org.springframework.boot:spring-boot-starter-web")
+  runtime("org.springframework.boot:spring-boot-devtools")
+  runtime("mysql:mysql-connector-java")
+  testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+springBoot {
+  executable = true
+}
+
+[test, build, bootRun].each {
+  it.shouldRunAfter assemble, ":docker:composeUp"
+  it.dependsOn assemble, ":docker:composeUp"
+  it.finalizedBy ":docker:composeDown"
+}

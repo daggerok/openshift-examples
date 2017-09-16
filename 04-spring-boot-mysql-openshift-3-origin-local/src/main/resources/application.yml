@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: spring-boot-mysql-openshift-3-origin-local
+  profiles:
+#    include: >
+#      app,
+#      data-rest,
+#      mysql,
+#      db
+    include:
+      - app
+      - data-rest
+      - mysql
+      - db

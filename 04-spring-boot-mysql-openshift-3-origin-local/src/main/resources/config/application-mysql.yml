@@ -1,0 +1,7 @@
+mysql:
+  user: ${MYSQL_USER:app}
+  password: ${MYSQL_PASSWORD:app}
+  database: ${MYSQL_DATABASE:app}
+  server:
+    host: ${MYSQL_SERVER_HOST:localhost}
+    port: ${MYSQL_SERVER_PORT:3306}
