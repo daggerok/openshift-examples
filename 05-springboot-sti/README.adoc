@@ -1,0 +1,118 @@
+= spring-boot sti
+
+.add to docker as insecure registry
+----
+docker-registry-default.127.0.0.1.nip.io
+----
+
+.spinup cluster
+[source,bash]
+----
+oc cluster up --host-data-dir=/tmp/oc --use-existing-config
+Starting OpenShift using openshift/origin:v3.6.0 ...
+Pulling image openshift/origin:v3.6.0
+Pulled 1/4 layers, 27% complete
+Pulled 1/4 layers, 80% complete
+Pulled 2/4 layers, 82% complete
+Pulled 3/4 layers, 94% complete
+Pulled 4/4 layers, 100% complete
+Extracting
+Image pull complete
+OpenShift server started.
+
+The server is accessible via web console at:
+    https://127.0.0.1:8443
+----
+
+.login as admin
+----
+oc login -u system:admin
+Logged into "https://127.0.0.1:8443" as "system:admin" using existing credentials.
+
+You have access to the following projects and can switch between them with 'oc project <projectname>':
+
+    default
+    kube-public
+    kube-system
+  * myproject
+    openshift
+    openshift-infra
+
+Using project "myproject".
+----
+
+.add cluster-admin role
+----
+oc adm policy add-cluster-role-to-user cluster-admin system
+cluster role "cluster-admin" added: "system"
+----
+
+. go to console: https://127.0.0.1:8443
+. auth as system / admin
+. project: default
+. deployment: docker-registry --> create route
+. Applications --> Routes -> docker-registry --> Actions --> edit -> Security --> secure route
+. get token to login oc cluster:
+  .. Overview --> ? --> Command Line Tools --> same session token --> Copy to clipboard
+
+----
+oc login https://docker-registry-default.127.0.0.1.nip.io --token=izTWq3aeyVYaQQu10S4niQZK6fb0J8l4JLl7Yo2tHGI
+The server uses a certificate signed by an unknown authority.
+You can bypass the certificate check, but any data you send to the server could be intercepted by others.
+Use insecure connections? (y/n): yes
+
+Logged into "https://docker-registry-default.127.0.0.1.nip.io:443" as "izTWq3aeyVYaQQu10S4niQZK6fb0J8l4JLl7Yo2tHGI" using the token provided.
+
+Using "default".  You can switch projects with:
+
+'oc project <projectname>'
+----
+
+link:https://www.youtube.com/watch?v=r5VzXvvkiL4[TODO]
+
+.login as developer
+[source,bash]
+----
+oc login -u developer -p developer
+Login successful.
+
+You have one project on this server: "myproject"
+
+Using project "myproject".
+----
+
+.create new project
+[source,bash]
+----
+oc new-project springboot-sti
+Now using project "springboot-sti" on server "https://127.0.0.1:8443".
+
+You can add applications to this project with the 'new-app' command. For example, try:
+
+    oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
+
+to build a new example application in Ruby.
+----
+
+.download spring-boot sti templates
+[source,bash]
+----
+oc create -f https://raw.githubusercontent.com/jorgemoralespou/osev3-examples/master/spring-boot/springboot-sti/springboot-sti-all.json
+buildconfig "springboot-sti" created
+imagestream "springboot-sti" created
+template "springboot-helloworld-maven" created
+template "springboot-helloworld-gradle" created
+The ImageStream "centos" is invalid: spec.dockerImageRepository: Invalid value: "library/centos:centos7": the repository name may not contain a tag
+----
+
+go to console --> choose springboot-sti project
+add project --> browse catalog --> java --> springboot-helloworld-gradle
+
+links:
+
+. link:https://blog.openshift.com/using-openshift-enterprise-grade-spring-boot-deployments/[Using OpenShift for Enterprise Grade Spring Boot Deployments]
+. link:https://blog.openshift.com/create-s2i-builder-image/[How to Create an S2I Builder Image]
+. link:https://github.com/openshift/source-to-image/blob/master/docs/cli.md#sti-create[s2i command line interface]
+. link:https://docs.openshift.com/online/using_images/s2i_images/java.html[Source-to-Image (S2I) / Java]
+. link:https://github.com/openshift/source-to-image/blob/master/examples/nginx-centos7/README.md[Creating a basic S2I builder image]
+. link:https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md[s2i builder image requirements]
